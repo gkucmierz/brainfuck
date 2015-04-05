@@ -119,7 +119,7 @@ module.exports.compile = function (bfSource, userConfig) {
   //   code.push(ordersMap[order]);
   // });
 
-  optimized.match(regex.instruction).map(function (instruction) {
+  (optimized.match(regex.instruction) || []).map(function (instruction) {
     var count = +instruction.substr(0, instruction.length - 1) || 1;
     var order = instruction.substr(-1);
     code.push(createOrder(order, count));
