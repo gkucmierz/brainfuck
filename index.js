@@ -1,7 +1,10 @@
 
 var bf = require('./brainfuck.js');
 
-var helloWorld = `brainfuck hello world wikipedia:
+var programs = [
+  {
+    name: 'helloWorld',
+    body: `brainfuck hello world wikipedia:
 ++++++++++
 [
 >+++++++>++++++++++>+++>+<<<<-
@@ -19,26 +22,24 @@ var helloWorld = `brainfuck hello world wikipedia:
 --------.          drukuje 'd'
 >+.                drukuje '!'
 >.                 nowa linia
-`;
-
-var echo = ',[.>,]';
-
-var input = 'echo test'.split('');
-
-var o = function (num) {
-  console.log(String.fromCharCode(num), num);
-};
-var i = function () {
-  var ch = input.shift();
-  if (ch) {
-    // console.log('taken: ' + ch);
-    return ch.charCodeAt(0);
+`,
+  },
+  {
+    name: 'echo',
+    body: ',[.>,]',
+    input: 'echo test'
+  },
+  {
+    name: 'double',
+    body: ',[..>,]',
+    input: 'double characters test'
   }
-  // console.log('end input');
-  return 0;
-};
+];
 
+bf.config({memorySize: 256});
 
-var compiled = bf.compile(echo, {memorySize: 256});
-compiled(i, o);
-
+programs.map(function (program) {
+  console.log('program name: ', program.name);
+  console.log(' - input: ', program.input);
+  console.log(' - result: ', bf.compile(program.body).run(program.input));
+});

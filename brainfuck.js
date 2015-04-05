@@ -70,7 +70,35 @@ module.exports.compile = function (bfSource, userConfig) {
     code.push(ordersMap[order]);
   });
 
-  return new Function(arguments, code.join(''));
+  var compiled = new Function(arguments, code.join(''));
+  return {
+    run: function (input, output) {
+      var inp, out;
+      var res = [];
+      if (_.isString(input)) {
+        input = input.split('');
+        inp = function () {
+          var ch = input.shift();
+          return ch ? ch.charCodeAt(0) : 0;
+        };
+      } else if (_.isFunction(input)) {
+        inp = input;
+      }
+      if (!_.isFunction(output)) {
+        output = function () {};
+      }
+      out = function (num) {
+        var ch = String.fromCharCode(num);
+        output(num, ch);
+        res.push(ch);
+      };
+      compiled(inp, out);
+      return res.join('');
+    },
+    toString: function () {
+      return compiled.toString();
+    }
+  };
 };
 
 
