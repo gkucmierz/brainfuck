@@ -12,8 +12,8 @@ module.exports.toJS = function (bfSource) {
     '.': 'o(m[p]);',
     '[': 'while(m[p]){',
     ']': '}',
-    '<': '--p;',
-    '>': '++p;',
+    '<': 'if(--p<0)p=l;',
+    '>': 'if(++p>=l)p=0;',
     '+': '++m[p];',
     '-': '--m[p];'
   };

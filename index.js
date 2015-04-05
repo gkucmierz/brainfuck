@@ -21,11 +21,24 @@ var helloWorld = `brainfuck hello world wikipedia:
 >.                 nowa linia
 `;
 
-var m = new Uint8Array(256);
+var input = ''.split('');
+
+var l = 3e4;
+var m = new Uint8Array(l);
 var p = 0;
 var o = function (num) {
   console.log(String.fromCharCode(num), num);
 };
+var i = function () {
+  var ch = input.shift();
+  if (ch) {
+    // console.log('taken: ' + ch);
+    return ch.charCodeAt(0);
+  }
+  // console.log('end input');
+  return 0;
+};
+
 
 var bfJS = bf.toJS(helloWorld);
 console.log(bfJS);
