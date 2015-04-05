@@ -1,10 +1,10 @@
 {
-  "name": "brainfuck",
+  "name": "brainfuck-compiler",
   "version": "0.0.1",
-  "description": "brainfuck",
+  "description": "brainfuck compiler to JavaScript",
   "private": false,
   "dependencies": {
-    "lodash-node": "^2.4.1"
+    "lodash-node": "^3.6.0"
   },
   "devDependencies": {},
   "repository": {
