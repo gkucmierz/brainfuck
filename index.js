@@ -42,4 +42,5 @@ programs.map(function (program) {
   console.log('program name: ', program.name);
   console.log(' - input: ', program.input);
   console.log(' - result: ', bf.compile(program.body).run(program.input));
+  console.log(' - compiled js: ', bf.compile(program.body)+'');
 });

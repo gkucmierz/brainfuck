@@ -5,6 +5,7 @@ var orders = ',.[]<>+-'.split('');
 var regex = {
   clean: new RegExp('[^' + escapeRegExp(orders.join('')) + ']', 'g'),
   value: /[\+\-]+/g,
+  pointer: /[\<\>]+/g,
   instruction: /[0-9]*./g
 };
 
@@ -20,20 +21,33 @@ module.exports.config = function (userConfig) {
   _.extend(config, userConfig);
 };
 
+var getInstruction = function (count, orderLess, orderMore) {
+  return ({
+    '1': (count > 1) ? count + orderMore : orderMore,
+    '0': '',
+    '-1': (count < -1) ? (count) + orderLess : orderLess
+  })[Math.sign(count)];
+};
+
 module.exports.compile = function (bfSource, userConfig) {
   var actualConfig = _.extend(_.clone(config), userConfig);
   var cleanedSource = (bfSource+'').replace(regex.clean, '');
-  var optimized = cleanedSource.replace(regex.value, function (m) {
-    var map = { '+': 1, '-': -1 };
-    var n = m.split('').reduce(function (acc, b) {
-      return acc + map[b];
-    }, 0);
-    return ({
-      '1': (n > 1) ? n + '+' : '+',
-      '0': '',
-      '-1': (n < -1) ? (-n) + '-' : '-'
-    })[Math.sign(n)];
-  });
+  var optimized = cleanedSource
+    .replace(regex.value, function (m) {
+      var map = { '+': 1, '-': -1 };
+      var n = m.split('').reduce(function (acc, b) {
+        return acc + map[b];
+      }, 0);
+      return getInstruction(n, '-', '+');
+    })
+    .replace(regex.pointer, function (m) {
+      var map = { '>': 1, '<': -1 };
+      var n = m.split('').reduce(function (acc, b) {
+        return acc + map[b];
+      }, 0);
+      return getInstruction(n, '<', '>');
+    })
+  ;
   
   // var ordersMap = { // m,p,o,i,l
   //   ',': 'm[p]=i();',
@@ -50,8 +64,8 @@ module.exports.compile = function (bfSource, userConfig) {
     '.': function () { return 'o(m[p]);'; },
     '[': function () { return 'while(m[p]){'; },
     ']': function () { return '}'; },
-    '<': function () { return 'if(--p<0)p=l;'; },
-    '>': function () { return 'if(++p>=l)p=0;'; },
+    '<': function (count) { return 'p-='+count+';while(p<0)p+=l;'; },
+    '>': function (count) { return 'p+='+count+';while(p>=l)p-=l;'; },
     '+': function (count) { return 'm[p]+='+count+';'; },
     '-': function (count) { return 'm[p]-='+count+';'; }
   };
