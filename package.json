@@ -10,5 +10,20 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/gkucmierz/brainfuck.git"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/gkucmierz/brainfuck/issues"
+  },
+  "homepage": "https://github.com/gkucmierz/brainfuck",
+  "main": "brainfuck.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "brainfuck",
+    "compiler",
+    "interpreter"
+  ],
+  "author": "https://github.com/gkucmierz <gkucmierz@gmail.com>",
+  "license": "MIT"
 }
