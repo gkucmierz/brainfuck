@@ -33,10 +33,17 @@ var programs = [
     name: 'double',
     body: ',[..>,]',
     input: 'double characters test'
+  },
+  {
+    name: 'infinite',
+    body: '+[>-<]'
   }
 ];
 
-bf.config({memorySize: 256});
+bf.config({
+  memorySize: 256,
+  maxInstructions: 1e4
+});
 
 programs.map(function (program) {
   console.log('program name: ', program.name);

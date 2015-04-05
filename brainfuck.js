@@ -11,7 +11,8 @@ var regex = {
 
 var config = {
   memorySize: 30000,
-  bits: 8 // 8, 16, 32
+  bits: 8, // 8, 16, 32
+  maxInstructions: 0 // limit execution to number of instructions, omit if 0
 };
 
 module.exports.config = function (userConfig) {
@@ -69,7 +70,21 @@ module.exports.compile = function (bfSource, userConfig) {
     '+': function (count) { return 'm[p]+='+count+';'; },
     '-': function (count) { return 'm[p]-='+count+';'; }
   };
+  var createOrder = function (order, count) {
+    var prefix = actualConfig.maxInstructions > 0 ? [
+      'if(++c>=',+actualConfig.maxInstructions,')return;'
+    ].join('') : '';
+    return [prefix, ordersMap[order](count)].join('');
+  };
   var definitions = {
+    // count
+    c: function (config) {
+      return config.maxInstructions > 0 ? 'var c=0;' : '';
+    },
+    // length
+    l: function (config) {
+      return ['var l=',config.memorySize,';'].join('');
+    },
     // memory
     m: function (config) {
       var memConstructors = {
@@ -78,7 +93,7 @@ module.exports.compile = function (bfSource, userConfig) {
         '32': 'Uint32Array'
       };
       var constructorName = memConstructors[config.bits] || memConstructors[8];
-      return ['var m=new ',constructorName,'(',+config.memorySize,');'].join('');
+      return ['var m=new ',constructorName,'(l);'].join('');
     },
     // pointer
     p: function () {
@@ -91,10 +106,6 @@ module.exports.compile = function (bfSource, userConfig) {
     // in
     i: function () {
       return 'var i=input||function(){return 0;};';
-    },
-    // length
-    l: function (config) {
-      return ['var l=',+config.memorySize,';'].join('');
     }
   };
   var arguments = ['input', 'output'];
@@ -111,7 +122,7 @@ module.exports.compile = function (bfSource, userConfig) {
   optimized.match(regex.instruction).map(function (instruction) {
     var count = +instruction.substr(0, instruction.length - 1) || 1;
     var order = instruction.substr(-1);
-    code.push(ordersMap[order](count));
+    code.push(createOrder(order, count));
   });
 
   var compiled = new Function(arguments, code.join(''));
