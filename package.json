@@ -1,0 +1,14 @@
+{
+  "name": "brainfuck",
+  "version": "0.0.1",
+  "description": "brainfuck",
+  "private": false,
+  "dependencies": {
+    "lodash-node": "^2.4.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gkucmierz/brainfuck.git"
+  }
+}
