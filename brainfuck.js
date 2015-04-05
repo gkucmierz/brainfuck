@@ -3,7 +3,9 @@ var _ = require('lodash-node');
 
 var orders = ',.[]<>+-'.split('');
 var regex = {
-  clean: new RegExp('[^' + escapeRegExp(orders.join('')) + ']','g')
+  clean: new RegExp('[^' + escapeRegExp(orders.join('')) + ']', 'g'),
+  value: /[\+\-]+/g,
+  instruction: /[0-9]*./g
 };
 
 var config = {
@@ -20,17 +22,38 @@ module.exports.config = function (userConfig) {
 
 module.exports.compile = function (bfSource, userConfig) {
   var actualConfig = _.extend(_.clone(config), userConfig);
-  var cleanedSource = (bfSource+'').replace(regex.clean, '').split('');
+  var cleanedSource = (bfSource+'').replace(regex.clean, '');
+  var optimized = cleanedSource.replace(regex.value, function (m) {
+    var map = { '+': 1, '-': -1 };
+    var n = m.split('').reduce(function (acc, b) {
+      return acc + map[b];
+    }, 0);
+    return ({
+      '1': (n > 1) ? n + '+' : '+',
+      '0': '',
+      '-1': (n < -1) ? (-n) + '-' : '-'
+    })[Math.sign(n)];
+  });
   
+  // var ordersMap = { // m,p,o,i,l
+  //   ',': 'm[p]=i();',
+  //   '.': 'o(m[p]);',
+  //   '[': 'while(m[p]){',
+  //   ']': '}',
+  //   '<': 'if(--p<0)p=l;',
+  //   '>': 'if(++p>=l)p=0;',
+  //   '+': '++m[p];',
+  //   '-': '--m[p];'
+  // };
   var ordersMap = { // m,p,o,i,l
-    ',': 'm[p]=i();',
-    '.': 'o(m[p]);',
-    '[': 'while(m[p]){',
-    ']': '}',
-    '<': 'if(--p<0)p=l;',
-    '>': 'if(++p>=l)p=0;',
-    '+': '++m[p];',
-    '-': '--m[p];'
+    ',': function () { return 'm[p]=i();'; },
+    '.': function () { return 'o(m[p]);'; },
+    '[': function () { return 'while(m[p]){'; },
+    ']': function () { return '}'; },
+    '<': function () { return 'if(--p<0)p=l;'; },
+    '>': function () { return 'if(++p>=l)p=0;'; },
+    '+': function (count) { return 'm[p]+='+count+';'; },
+    '-': function (count) { return 'm[p]-='+count+';'; }
   };
   var definitions = {
     // memory
@@ -66,8 +89,15 @@ module.exports.compile = function (bfSource, userConfig) {
   _.each(definitions, function (evaluate) {
     code.push(evaluate(actualConfig));
   });
-  cleanedSource.map(function (order) {
-    code.push(ordersMap[order]);
+
+  // cleanedSource.split('').map(function (order) {
+  //   code.push(ordersMap[order]);
+  // });
+
+  optimized.match(regex.instruction).map(function (instruction) {
+    var count = +instruction.substr(0, instruction.length - 1) || 1;
+    var order = instruction.substr(-1);
+    code.push(ordersMap[order](count));
   });
 
   var compiled = new Function(arguments, code.join(''));
