@@ -72,14 +72,14 @@ module.exports.compile = function (bfSource, userConfig) {
   };
   var createOrder = function (order, count) {
     var prefix = actualConfig.maxInstructions > 0 ? [
-      'if(++c>=',+actualConfig.maxInstructions,')return;'
+      'if(!--c)return;'
     ].join('') : '';
     return [prefix, ordersMap[order](count)].join('');
   };
   var definitions = {
     // count
     c: function (config) {
-      return config.maxInstructions > 0 ? 'var c=0;' : '';
+      return config.maxInstructions > 0 ? 'var c='+config.maxInstructions+';' : '';
     },
     // length
     l: function (config) {
