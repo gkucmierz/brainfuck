@@ -26,7 +26,7 @@ var getInstruction = function (count, orderLess, orderMore) {
   return ({
     '1': (count > 1) ? count + orderMore : orderMore,
     '0': '',
-    '-1': (count < -1) ? (count) + orderLess : orderLess
+    '-1': (count < -1) ? (-count) + orderLess : orderLess
   })[Math.sign(count)];
 };
 
