@@ -1,9 +1,17 @@
 const bf = require('./brainfuck');
 const assert = require('assert');
 
-let prog = '++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.';
+let run = (prog, input) => {
+  return bf.compile(prog).run(input);
+};
 
-let compiled = bf.compile(prog);
 
-// only one test, but for the time being its ok
-assert.strictEqual(compiled.run(''), 'Hello World!\n', 'Test Failed');
+assert.strictEqual(run(
+  '++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.',
+  ''
+), 'Hello World!\n', 'Hello World!');
+
+assert.strictEqual(run(
+  '>,[->+>,]<[[+<-<]>[>>]>[.[>]>]<<]',
+  'sort'
+), 'orst', 'sort');

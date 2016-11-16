@@ -90,8 +90,6 @@ module.exports.compile = (bfSource, userConfig) => {
     i: () => 'let i=input||(()=>0);'
   };
 
-  let args = ['input', 'output'];
-
   // create variables definitions
   let code = Object.keys(definitions).map(key => definitions[key](actualConfig));
 
@@ -102,7 +100,8 @@ module.exports.compile = (bfSource, userConfig) => {
     code.push(createOrder(order, count));
   });
 
-  let compiled = new Function(args, code.join(''));
+  let compiled = new Function(['input', 'output'], code.join(''));
+  
   return {
     run: (input, output) => {
       let inp, out;
