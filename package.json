@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "brainfuck compiler to JavaScript",
   "private": false,
-  "dependencies": {
-    "lodash-node": "^3.6.0"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "repository": {
     "type": "git",

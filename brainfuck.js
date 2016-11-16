@@ -1,6 +1,4 @@
 
-let _ = require('lodash-node');
-
 let orders = ',.[]<>+-'.split('');
 let regex = {
   clean: new RegExp('[^' + escapeRegExp(orders.join('')) + ']', 'g'),
@@ -15,23 +13,35 @@ let config = {
   maxInstructions: 0 // limit execution to number of instructions, omit if 0
 };
 
-module.exports.config = function (userConfig) {
-  if (_.isUndefined(userConfig)) {
-    return _.clone(config);
-  }
-  _.extend(config, userConfig);
-};
-
-let getInstruction = function (count, orderLess, orderMore) {
+function getInstruction (count, orderLess, orderMore) {
   return ({
     '1': (count > 1) ? count + orderMore : orderMore,
     '0': '',
     '-1': (count < -1) ? (-count) + orderLess : orderLess
   })[Math.sign(count)];
+}
+
+function escapeRegExp (str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function cloneObj (obj) {
+  return Object.keys(obj).reduce((res, key) => (res[key] = obj[key], res), {});
+}
+
+function extendObj (obj, ext) {
+  return Object.keys(ext || {}).reduce((res, key) => (res[key] = ext[key], res), obj);
+}
+
+module.exports.config = function (userConfig) {
+  if (typeof userConfig === 'undefined') {
+    return cloneObj(config);
+  }
+  extendObj(config, userConfig);
 };
 
 module.exports.compile = function (bfSource, userConfig) {
-  let actualConfig = _.extend(_.clone(config), userConfig);
+  let actualConfig = extendObj(cloneObj(config), userConfig);
   let cleanedSource = (bfSource+'').replace(regex.clean, '');
   let optimized = cleanedSource
     .replace(regex.value, function (m) {
@@ -50,16 +60,6 @@ module.exports.compile = function (bfSource, userConfig) {
     })
   ;
   
-  // let ordersMap = { // m,p,o,i,l
-  //   ',': 'm[p]=i();',
-  //   '.': 'o(m[p]);',
-  //   '[': 'while(m[p]){',
-  //   ']': '}',
-  //   '<': 'if(--p<0)p=l;',
-  //   '>': 'if(++p>=l)p=0;',
-  //   '+': '++m[p];',
-  //   '-': '--m[p];'
-  // };
   let ordersMap = { // m,p,o,i,l
     ',': function () { return 'm[p]=i();'; },
     '.': function () { return 'o(m[p]);'; },
@@ -108,38 +108,31 @@ module.exports.compile = function (bfSource, userConfig) {
       return 'let i=input||function(){return 0;};';
     }
   };
-  let arguments = ['input', 'output'];
+  let args = ['input', 'output'];
 
-  let code = [];
-  _.each(definitions, function (evaluate) {
-    code.push(evaluate(actualConfig));
-  });
+  let code = Object.keys(definitions).map(key => definitions[key](actualConfig));
 
-  // cleanedSource.split('').map(function (order) {
-  //   code.push(ordersMap[order]);
-  // });
-
-  (optimized.match(regex.instruction) || []).map(function (instruction) {
+  (optimized.match(regex.instruction) || []).map((instruction) => {
     let count = +instruction.substr(0, instruction.length - 1) || 1;
     let order = instruction.substr(-1);
     code.push(createOrder(order, count));
   });
 
-  let compiled = new Function(arguments, code.join(''));
+  let compiled = new Function(args, code.join(''));
   return {
     run: function (input, output) {
       let inp, out;
       let res = [];
-      if (_.isString(input)) {
+      if (typeof input === 'string') {
         input = input.split('');
         inp = function () {
           let ch = input.shift();
           return ch ? ch.charCodeAt(0) : 0;
         };
-      } else if (_.isFunction(input)) {
+      } else if (typeof input === 'function') {
         inp = input;
       }
-      if (!_.isFunction(output)) {
+      if (typeof output !== 'function') {
         output = function () {};
       }
       out = function (num) {
@@ -155,8 +148,3 @@ module.exports.compile = function (bfSource, userConfig) {
     }
   };
 };
-
-
-function escapeRegExp (str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
