@@ -1,6 +1,6 @@
 {
   "name": "brainfuck-compiler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "brainfuck compiler to JavaScript",
   "private": false,
   "dependencies": {},
