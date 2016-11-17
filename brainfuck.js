@@ -44,11 +44,19 @@ module.exports.compile = (bfSource, userConfig) => {
   let actualConfig = extendObj(cloneObj(config), userConfig);
   let cleanedSource = (bfSource+'').replace(regex.clean, '');
   let optimized = cleanedSource
+    // add (z)ero instruction => it makes reseting cell much faster
+    .replace(/\[\-\]/g, 'z')
+    // optimze cell manipulating instructions
+    // for example: '+++--' => '+'
+    //              '+++++' => '5+'
     .replace(regex.value, (m) => {
       let map = { '+': 1, '-': -1 };
       let n = m.split('').reduce((acc, b) => acc + map[b], 0);
       return getInstruction(n, '-', '+');
     })
+    // optimze pointer manipulating instructions
+    // for example: '>>><<' => '>'
+    //              '>>>>>' => '5>'
     .replace(regex.pointer, (m) => {
       let map = { '>': 1, '<': -1 };
       let n = m.split('').reduce((acc, b) => acc + map[b], 0);
@@ -63,7 +71,9 @@ module.exports.compile = (bfSource, userConfig) => {
     '<': (count) => 'p-='+count+';while(p<0)p+=l;',
     '>': (count) => 'p+='+count+';while(p>=l)p-=l;',
     '+': (count) => 'm[p]+='+count+';',
-    '-': (count) => 'm[p]-='+count+';'
+    '-': (count) => 'm[p]-='+count+';',
+    // optimizations:
+    'z': () => 'm[p]=0;' // [-] => quick reset memory cell
   };
 
   let createOrder = (order, count) => {
