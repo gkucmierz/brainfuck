@@ -5,10 +5,10 @@ gulp.task('build', () => {
   gulp.src('brainfuck.js')
     .pipe(modifyFile((content, path, file) => {
       const start = `
-let brainfuckCompiler = (function (modules){
+let brainfuckCompiler = (function (module){
 `;
       const end = `
-return modules.export;
+return module.export;
 })({export: {}});
 `;
       return `${start}${content}${end}`;
