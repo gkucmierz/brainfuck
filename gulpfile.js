@@ -8,8 +8,8 @@ gulp.task('build', () => {
 let brainfuckCompiler = (function (module){
 `;
       const end = `
-return module.export;
-})({export: {}});
+return module.exports;
+})({exports: {}});
 `;
       return `${start}${content}${end}`;
     }))
