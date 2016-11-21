@@ -1,11 +1,9 @@
 const bf = require('./brainfuck');
 const assert = require('assert');
 
-
 let run = (prog, input) => {
   return bf.compile(prog).run(input);
 };
-
 
 assert.strictEqual(run(
   '++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.',
@@ -16,7 +14,6 @@ assert.strictEqual(run(
   '>,[->+>,]<[[+<-<]>[>>]>[.[>]>]<<]',
   'sort'
 ), 'orst', 'sort');
-
 
 (() => {
   let set48 = `
