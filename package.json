@@ -16,9 +16,9 @@
     "url": "https://github.com/gkucmierz/brainfuck/issues"
   },
   "homepage": "https://github.com/gkucmierz/brainfuck",
-  "main": "brainfuck.js",
+  "main": "lib/brainfuck.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "keywords": [
     "brainfuck",
