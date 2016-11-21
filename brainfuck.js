@@ -45,7 +45,7 @@ module.exports.compile = (bfSource, userConfig) => {
   let cleanedSource = (bfSource+'').replace(regex.clean, '');
   let optimized = cleanedSource
     // add (z)ero instruction => it makes reseting cell much faster
-    .replace(/\[\-\]/g, 'z')
+    .replace(/\[(\-|\+)\]/g, 'z')
     // optimze cell manipulating instructions
     // for example: '+++--' => '+'
     //              '+++++' => '5+'
