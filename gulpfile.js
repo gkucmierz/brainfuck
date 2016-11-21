@@ -7,10 +7,10 @@ gulp.task('build', () => {
     .pipe(babel({presets: ['es2015']}))
     .pipe(modifyFile((content, path, file) => {
       const start = `
-(function (module){
+var brainfuckCompiler = (function (module){
 `;
       const end = `
-  window.brainfuckCompiler = window.brainfuckCompiler || module.exports;
+  return module.exports;
 })({exports: {}});
 `;
       return `${start}${content}${end}`;
