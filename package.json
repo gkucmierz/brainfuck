@@ -4,9 +4,11 @@
   "description": "brainfuck compiler to JavaScript",
   "private": false,
   "devDependencies": {
-    "gulp-babel": "^6.1.2",
     "babel-preset-es2015": "^6.18.0",
-    "gulp-modify-file": "^0.1.0"
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-modify-file": "^0.1.0",
+    "gulp-watch": "^4.3.11"
   },
   "repository": {
     "type": "git",
