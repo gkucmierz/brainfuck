@@ -4,7 +4,8 @@ let regex = {
   clean: new RegExp('[^' + escapeRegExp(orders.join('')) + ']', 'g'),
   value: /[\+\-]+/g,
   pointer: /[\<\>]+/g,
-  instruction: /[0-9]*./g
+  instruction: /[0-9]*./g,
+  zero: /\[(\-|\+)\]/g
 };
 
 let config = {
@@ -44,8 +45,6 @@ module.exports.compile = (bfSource, userConfig) => {
   let actualConfig = extendObj(cloneObj(config), userConfig);
   let cleanedSource = (bfSource+'').replace(regex.clean, '');
   let optimized = cleanedSource
-    // add (z)ero instruction => it makes reseting cell much faster
-    .replace(/\[(\-|\+)\]/g, 'z')
     // optimze cell manipulating instructions
     // for example: '+++--' => '+'
     //              '+++++' => '5+'
@@ -61,7 +60,9 @@ module.exports.compile = (bfSource, userConfig) => {
       let map = { '>': 1, '<': -1 };
       let n = m.split('').reduce((acc, b) => acc + map[b], 0);
       return getInstruction(n, '<', '>');
-    });
+    })
+    // add (z)ero instruction => it makes reseting cell much faster
+    .replace(regex.zero, 'z');
   
   let ordersMap = { // m,p,o,i,l
     ',': () => 'm[p]=i();',
